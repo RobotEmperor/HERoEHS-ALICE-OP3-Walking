@@ -23,19 +23,19 @@ WalkingModule::WalkingModule()
 	previous_x_move_amplitude_ = 0.0;
 
 	// result
-	result_["r_hip_yaw"] = new robotis_framework::DynamixelState();
-	result_["r_hip_roll"] = new robotis_framework::DynamixelState();
-	result_["r_hip_pitch"] = new robotis_framework::DynamixelState();
-	result_["r_knee_pitch"] = new robotis_framework::DynamixelState();
-	result_["r_ankle_pitch"] = new robotis_framework::DynamixelState();
-	result_["r_ankle_roll"] = new robotis_framework::DynamixelState();
+	result_["l_hip_pitch"]      = new robotis_framework::DynamixelState();  // joint 11
+	result_["l_hip_roll"]       = new robotis_framework::DynamixelState();  // joint 13
+	result_["l_hip_yaw"]        = new robotis_framework::DynamixelState();  // joint 15
+	result_["l_knee_pitch"]     = new robotis_framework::DynamixelState();  // joint 17
+	result_["l_ankle_pitch"]    = new robotis_framework::DynamixelState();  // joint 19
+	result_["l_ankle_roll"]     = new robotis_framework::DynamixelState();  // joint 21
 
-	result_["l_hip_yaw"] = new robotis_framework::DynamixelState();
-	result_["l_hip_roll"] = new robotis_framework::DynamixelState();
-	result_["l_hip_pitch"] = new robotis_framework::DynamixelState();
-	result_["l_knee_pitch"] = new robotis_framework::DynamixelState();
-	result_["l_ankle_pitch"] = new robotis_framework::DynamixelState();
-	result_["l_ankle_roll"] = new robotis_framework::DynamixelState();
+	result_["r_hip_pitch"]      = new robotis_framework::DynamixelState();  // joint 12
+	result_["r_hip_roll"]       = new robotis_framework::DynamixelState();  // joint 14
+	result_["r_hip_yaw"]        = new robotis_framework::DynamixelState();  // joint 16
+	result_["r_knee_pitch"]     = new robotis_framework::DynamixelState();  // joint 18
+	result_["r_ankle_pitch"]    = new robotis_framework::DynamixelState();  // joint 20
+	result_["r_ankle_roll"]     = new robotis_framework::DynamixelState();  // joint 22
 
 	//result_["r_sho_pitch"] = new robotis_framework::DynamixelState();
 	//result_["l_sho_pitch"] = new robotis_framework::DynamixelState();
@@ -55,13 +55,86 @@ WalkingModule::WalkingModule()
 	joint_table_["l_ankle_pitch"] = 10;
 	joint_table_["l_ankle_roll"] = 11;
 
+	joint_id_to_name[0] = "r_hip_yaw";
+	joint_id_to_name[1] = "r_hip_roll";
+	joint_id_to_name[2] = "r_hip_pitch";
+	joint_id_to_name[3] = "r_knee_pitch";
+	joint_id_to_name[4] = "r_ankle_pitch";
+	joint_id_to_name[5] = "r_ankle_roll";
+
+	joint_id_to_name[6]  = "l_hip_yaw";
+	joint_id_to_name[7]  = "l_hip_roll";
+	joint_id_to_name[8]  = "l_hip_pitch";
+	joint_id_to_name[9]  = "l_knee_pitch";
+	joint_id_to_name[10] = "l_ankle_pitch";
+	joint_id_to_name[11] = "l_ankle_roll";
+
 	//joint_table_["r_sho_pitch"] = 12;
 	//joint_table_["l_sho_pitch"] = 13;
 
-	target_position_ = Eigen::MatrixXd::Zero(1, result_.size());
-	goal_position_ = Eigen::MatrixXd::Zero(1, result_.size());
-	init_position_ = Eigen::MatrixXd::Zero(1, result_.size());
-	joint_axis_direction_ = Eigen::MatrixXi::Zero(1, result_.size());
+	period_time_= 0;
+	dsp_ratio_= 0;
+	ssp_ratio_= 0;
+	x_swap_period_time_= 0;
+	x_move_period_time_= 0;
+	y_swap_period_time_= 0;
+	y_move_period_time_= 0;
+	z_swap_period_time_= 0;
+	z_move_period_time_= 0;
+	a_move_period_time_= 0;
+	ssp_time_= 0;
+	l_ssp_start_time_= 0;
+	l_ssp_end_time_= 0;
+	r_ssp_start_time_= 0;
+	r_ssp_end_time_= 0;
+	phase1_time_= 0;
+	phase2_time_= 0;
+	phase3_time_= 0;
+	x_offset_= 0;
+	y_offset_= 0;
+	z_offset_= 0;
+	r_offset_= 0;
+	p_offset_= 0;
+	a_offset_= 0;
+	x_swap_phase_shift_ = 0;
+	x_swap_amplitude_= 0;
+	x_swap_amplitude_shift_= 0;
+	x_move_phase_shift_= 0;
+	x_move_amplitude_= 0;
+	x_move_amplitude_shift_= 0;
+	y_swap_phase_shift_= 0;
+	y_swap_amplitude_= 0;
+	y_swap_amplitude_shift_= 0;
+	y_move_phase_shift_= 0;
+	y_move_amplitude_= 0;
+	y_move_amplitude_shift_= 0;
+	z_swap_phase_shift_= 0;
+	z_swap_amplitude_= 0;
+	z_swap_amplitude_shift_= 0;
+	z_move_phase_shift_= 0;
+	z_move_amplitude_= 0;
+	z_move_amplitude_shift_= 0;
+	a_move_phase_shift_= 0;
+	a_move_amplitude_= 0;
+	a_move_amplitude_shift_= 0;
+
+	pelvis_offset_= 0;
+	pelvis_swing_= 0;
+	hit_pitch_offset_= 0;
+	arm_swing_gain_= 0;
+
+	ctrl_running_ = 0;
+	real_running_ = 0;
+	time_ = 0;
+
+	phase_ = 0;
+	body_swing_y = 0;
+	body_swing_z = 0;
+
+	target_position_ = Eigen::MatrixXd::Zero(1, 12);
+	goal_position_ = Eigen::MatrixXd::Zero(1, 12);
+	init_position_ = Eigen::MatrixXd::Zero(1, 12);
+	joint_axis_direction_ = Eigen::MatrixXi::Zero(1, 12);
 
 	// Alice kinematics
 
@@ -81,11 +154,9 @@ WalkingModule::WalkingModule()
 	tf_current_gyro_x = 0;
 	tf_current_gyro_y = 0;
 	tf_current_gyro_z = 0;
-
-
-
-
-
+	rl_gyro_err = 0.0;
+	fb_gyro_err = 0,0;
+	goal_position = 0.0;
 }
 
 WalkingModule::~WalkingModule()
@@ -157,6 +228,9 @@ void WalkingModule::initialize(const int control_cycle_msec, robotis_framework::
 
 	init_position_ *= DEGREE2RADIAN;
 
+	for (int id = 0; id <= 11; id++)
+		target_position_.coeffRef(0, id) = init_position_(0, id);
+
 	ros::NodeHandle ros_node;
 
 	std::string default_param_path = ros::package::getPath("alice_op3_walking_module") + "/config/param.yaml";
@@ -188,6 +262,7 @@ void WalkingModule::queueThread()
 			&WalkingModule::walkingCommandCallback, this);
 	ros::Subscriber walking_param_sub = ros_node.subscribe("/robotis/walking/set_params", 0,
 			&WalkingModule::walkingParameterCallback, this);
+
 	get_imu_data_sub_ = ros_node.subscribe("/imu/data", 100, &WalkingModule::imuDataMsgCallback, this);
 	get_ft_data_sub_ = ros_node.subscribe("/alice/force_torque_data", 100, &WalkingModule::ftDataMsgCallback, this);
 
@@ -227,7 +302,7 @@ void WalkingModule::walkingCommandCallback(const std_msgs::String::ConstPtr &msg
 		saveWalkingParam(param_path_);
 }
 
-void WalkingModule::walkingParameterCallback(const op3_walking_module_msgs::WalkingParam::ConstPtr &msg)
+void WalkingModule::walkingParameterCallback(const op3_walking_module_msgs::WalkingParam::ConstPtr& msg)
 {
 	walking_param_ = *msg;
 }
@@ -357,12 +432,11 @@ void WalkingModule::process(std::map<std::string, robotis_framework::Dynamixel *
 		return;
 
 	const double time_unit = control_cycle_msec_ * 0.001;  // ms -> s
-	int joint_size = result_.size();
 
 	if (walking_state_ == WalkingInitPose)
 	{
-		int total_count = calc_joint_tra_.rows();
-		for (int id = 1; id <= result_.size(); id++)
+		/*	int total_count = calc_joint_tra_.rows();
+		for (int id = 0; id <= 11; id++)
 			target_position_.coeffRef(0, id) = calc_joint_tra_(init_pose_count_, id);
 
 		init_pose_count_ += 1;
@@ -371,13 +445,15 @@ void WalkingModule::process(std::map<std::string, robotis_framework::Dynamixel *
 			walking_state_ = WalkingReady;
 			if (DEBUG)
 				std::cout << "End moving to Init : " << init_pose_count_ << std::endl;
-		}
+		}*/
+		for (int id = 0; id <= 11; id++)
+			target_position_.coeffRef(0, id) = init_position_(0, id);
 
 	}
 	else if (walking_state_ == WalkingReady || walking_state_ == WalkingEnable)
 	{
 		// present angle
-		for (std::map<std::string, robotis_framework::DynamixelState *>::iterator state_iter = result_.begin();
+		/*for (std::map<std::string, robotis_framework::DynamixelState *>::iterator state_iter = result_.begin();
 				state_iter != result_.end(); state_iter++)
 		{
 			std::string _joint_name = state_iter->first;
@@ -391,56 +467,35 @@ void WalkingModule::process(std::map<std::string, robotis_framework::Dynamixel *
 				continue;
 
 			goal_position_.coeffRef(0, joint_index) = dxl->dxl_state_->goal_position_;
-		}
-		for (int idx = 0; idx < 12; idx++)
-		{
-			//printf("sssssss  %d ::  %f \n", idx, balance_angle[idx]);
-
-		}
+		}*/
 
 		processPhase(time_unit);
 
-		bool get_angle = false;
-		get_angle = computeLegAngle();
+		computeLegAngle();
+
+		rl_gyro_err = 0.0 - tf_current_gyro_x;
+		fb_gyro_err = 0.0 - tf_current_gyro_y;
 
 
-
-
-		//computeArmAngle(&angle[12]);
-
-		//double rl_gyro_err = 0.0 - sensors["gyro_x"];
-		//double fb_gyro_err = 0.0 - sensors["gyro_y"];
-
-		double rl_gyro_err = 0.0 - tf_current_gyro_x;
-		double fb_gyro_err = 0.0 - tf_current_gyro_y;
-
-		sensoryFeedback(rl_gyro_err, fb_gyro_err, balance_angle);
+		sensoryFeedback(rl_gyro_err, fb_gyro_err);
 
 		double err_total = 0.0, err_max = 0.0;
 		// set goal position
-		for (int idx = 0; idx < 14; idx++)
+		for (int idx = 0; idx < 12; idx++)
 		{
-			double goal_position = 0.0;
-			if (get_angle == false && idx < 12)
-			{
-				goal_position = goal_position_.coeff(0, idx);
-			}
-			else
-			{
-				//goal_position = init_position_.coeff(0, idx) + angle[idx] + balance_angle[idx];
-				goal_position = angle[idx] + balance_angle[idx];
-			}
+
+			//goal_position = init_position_.coeff(0, idx) + angle[idx] + balance_angle[idx];
+			goal_position = angle[idx] + balance_angle[idx];
 
 			target_position_.coeffRef(0, idx) = goal_position;
 
-			double err = fabs(target_position_.coeff(0, idx) - goal_position_.coeff(0, idx)) * RADIAN2DEGREE;
+			/*double err = fabs(target_position_.coeff(0, idx) - goal_position_.coeff(0, idx)) * RADIAN2DEGREE;
 			if (err > err_max)
 				err_max = err;
-			err_total += err;
+			err_total += err;*/
 		}
-
 		// Check Enable
-		if (walking_state_ == WalkingEnable && err_total > 5.0)
+		/*if (walking_state_ == WalkingEnable && err_total > 5.0)
 		{
 			if (DEBUG)
 				std::cout << "Check Err : " << err_max << std::endl;
@@ -478,25 +533,18 @@ void WalkingModule::process(std::map<std::string, robotis_framework::Dynamixel *
 		else
 		{
 			walking_state_ = WalkingReady;
-		}
+		}*/
 	}
 
-	// set result
-	for (std::map<std::string, robotis_framework::DynamixelState *>::iterator state_it = result_.begin();
-			state_it != result_.end(); state_it++)
+	for (int idx = 0; idx < 12; idx++)
 	{
-		std::string joint_name = state_it->first;
-		int joint_index = joint_table_[joint_name];
+		result_[joint_id_to_name[idx]]->goal_position_ = target_position_.coeff(0, idx);
+		printf("%d  ::    %f \n", idx, result_[joint_id_to_name[idx]]->goal_position_);
 
-		result_[joint_name]->goal_position_ = target_position_.coeff(0, joint_index);
 
-		// Todo : setting PID gain to the leg joints
-		// result_[joint_name]->position_p_gain_ = walking_param_.p_gain;
-		// result_[joint_name]->position_i_gain_ = walking_param_.i_gain;
-		// result_[joint_name]->position_d_gain_ = walking_param_.d_gain;
-
-		printf("%s  ::    %f \n", joint_name.c_str(), result_[joint_name]->goal_position_);
 	}
+
+
 
 	// time
 	if (real_running_ == true)
@@ -528,6 +576,7 @@ void WalkingModule::processPhase(const double &time_unit)
 				// set walking param to init
 				walking_param_.x_move_amplitude = 0;
 				walking_param_.y_move_amplitude = 0;
+				//walking_param_.z_move_amplitude = 0;
 				walking_param_.angle_move_amplitude = 0;
 
 				previous_x_move_amplitude_ = 0;
@@ -556,6 +605,7 @@ void WalkingModule::processPhase(const double &time_unit)
 				// set walking param to init
 				walking_param_.x_move_amplitude = previous_x_move_amplitude_;
 				walking_param_.y_move_amplitude = 0;
+				//walking_param_.z_move_amplitude = 0;
 				walking_param_.angle_move_amplitude = 0;
 			}
 		}
@@ -572,6 +622,20 @@ bool WalkingModule::computeLegAngle()
 	Pose3D swap, right_leg_move, left_leg_move;
 	double pelvis_offset_r, pelvis_offset_l;
 	double ep[12];
+
+	pelvis_offset_r = 0.0;
+	pelvis_offset_l = 0.0;
+	for(int i = 0;i++; i<12)
+	{
+		ep[i] = 0.0;
+	}
+	swap.x = 0.0;
+	swap.y = 0.0;
+	swap.z = 0.0;
+	swap.roll = 0.0;
+	swap.pitch = 0.0;
+	swap.yaw = 0.0;
+
 
 	updatePoseParam();
 
@@ -775,24 +839,6 @@ bool WalkingModule::computeLegAngle()
 	}
 	body_swing_z -= leg_length;
 
-	// right leg
-	/*	if (op3_kd_->calcInverseKinematicsForRightLeg(&leg_angle[0], ep[0], ep[1], ep[2], ep[3], ep[4], ep[5]) == false)
-	{
-		printf("IK not Solved EPR : %f %f %f %f %f %f\n", ep[0], ep[1], ep[2], ep[3], ep[4], ep[5]);
-		return false;
-	}
-
-	// left leg
-	if (op3_kd_->calcInverseKinematicsForLeftLeg(&leg_angle[6], ep[6], ep[7], ep[8], ep[9], ep[10], ep[11]) == false)
-	{
-		printf("IK not Solved EPL : %f %f %f %f %f %f\n", ep[6], ep[7], ep[8], ep[9], ep[10], ep[11]);
-		return false;
-	}*/
-
-	//printf("RRRRR    %f : %f :%f : %f : %f : %f \n",ep[0], ep[1], ep[2], ep[5], ep[4], ep[3]);
-	//printf("LLLLL    %f : %f :%f : %f : %f : %f \n",ep[6], ep[7], ep[8], ep[11], ep[10], ep[9]);
-
-
 
 	r_kinematics_->InverseKinematics(ep[0], ep[1], ep[2], ep[5], ep[4], ep[3]);
 	l_kinematics_->InverseKinematics(ep[6], ep[7], ep[8], ep[11], ep[10], ep[9]);
@@ -816,14 +862,9 @@ bool WalkingModule::computeLegAngle()
 	angle[10] = l_kinematics_->joint_radian(5,0);
 	angle[11] = l_kinematics_->joint_radian(6,0);
 
-	/*for(int i = 0;i++; i<12)
-	{
-		printf("1111  %d  ::    %f \n", i, angle[i]);
-	}
-	 */
 
 	// Compute dxls angle
-	/*	for (int i = 0; i < 12; i++)
+	for (int i = 0; i < 12; i++)
 	{
 		// offset : rad
 		double offset = 0;
@@ -838,10 +879,7 @@ bool WalkingModule::computeLegAngle()
 			offset -= -1 * hit_pitch_offset_;
 
 		angle[i] += offset;
-
-		//printf("FFFFFFFF  %d ::  %f \n", i, angle[i]);
-
-	}*/
+	}
 
 	return true;
 }
@@ -863,13 +901,31 @@ void WalkingModule::computeArmAngle(double *arm_angle)
 	}*/
 }
 
-void WalkingModule::sensoryFeedback(const double &rlGyroErr, const double &fbGyroErr, double *balance_angle)
+void WalkingModule::sensoryFeedback(double rlGyroErr,double fbGyroErr)
 {
 	// adjust balance offset
 	if (walking_param_.balance_enable == false)
 		return;
 
-	double internal_gain = 0.05;
+	// max min check !
+	if(rlGyroErr > 0.26)
+	{
+		rlGyroErr = 0.26;
+	}
+	if(rlGyroErr < -0.26)
+	{
+		rlGyroErr = -0.26;
+	}
+	if(fbGyroErr > 0.26)
+	{
+		fbGyroErr = 0.26;
+	}
+	if(fbGyroErr < -0.26)
+	{
+		fbGyroErr = -0.26;
+	}
+
+	static double internal_gain = 0.05;
 
 	/*balance_angle[joint_table_["r_hip_roll"]] =  op3_kd_->getJointDirection("r_hip_roll") * internal_gain
 	 * rlGyroErr * walking_param_.balance_hip_roll_gain;  // R_HIP_ROLL
@@ -891,6 +947,7 @@ void WalkingModule::sensoryFeedback(const double &rlGyroErr, const double &fbGyr
 	balance_angle[joint_table_["l_ank_roll"]] = - op3_kd_->getJointDirection("l_ank_roll") * internal_gain
 	 * rlGyroErr * walking_param_.balance_ankle_roll_gain;  // L_ANKLE_ROLL*/
 
+
 	balance_angle[joint_table_["r_hip_roll"]] =  -1* internal_gain
 			* rlGyroErr * walking_param_.balance_hip_roll_gain;  // R_HIP_ROLL
 	balance_angle[joint_table_["l_hip_roll"]] =  -1 * internal_gain
@@ -910,16 +967,6 @@ void WalkingModule::sensoryFeedback(const double &rlGyroErr, const double &fbGyr
 			* rlGyroErr * walking_param_.balance_ankle_roll_gain;  // R_ANKLE_ROLL
 	balance_angle[joint_table_["l_ankle_roll"]] = - 1 * internal_gain
 			* rlGyroErr * walking_param_.balance_ankle_roll_gain;  // L_ANKLE_ROLL
-
-
-	for (int idx = 0; idx < 12; idx++)
-	{
-
-		printf("222222222  %d ::  %f \n", idx, balance_angle[idx]);
-
-	}
-
-
 
 }
 
@@ -1023,9 +1070,9 @@ void WalkingModule::iniPoseTraGene(double mov_time)
 {
 	double smp_time = control_cycle_msec_ * 0.001;
 	int all_time_steps = int(mov_time / smp_time) + 1;
-	calc_joint_tra_.resize(all_time_steps, result_.size() + 1);
+	calc_joint_tra_.resize(all_time_steps, 12 + 1);
 
-	for (int id = 0; id <= result_.size(); id++)
+	for (int id = 0; id <= 11; id++)
 	{
 		double ini_value = goal_position_.coeff(0, id);
 		double tar_value = target_position_.coeff(0, id);

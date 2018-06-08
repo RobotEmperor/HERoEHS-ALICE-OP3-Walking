@@ -123,7 +123,7 @@ private:
 	void processPhase(const double &time_unit);
 	bool computeLegAngle();
 	void computeArmAngle(double *arm_angle);
-	void sensoryFeedback(const double &rlGyroErr, const double &fbGyroErr, double *balance_angle);
+	void sensoryFeedback(double rlGyroErr,double fbGyroErr);
 
 	void publishStatusMsg(unsigned int type, std::string msg);
 	double wSin(double time, double period, double period_shift, double mag, double mag_shift);
@@ -153,6 +153,7 @@ private:
 	Eigen::MatrixXd init_position_;
 	Eigen::MatrixXi joint_axis_direction_;
 	std::map<std::string, int> joint_table_;
+	std::map<int, std::string> joint_id_to_name;
 	int walking_state_;
 	int init_pose_count_;
 	op3_walking_module_msgs::WalkingParam walking_param_;
@@ -222,6 +223,10 @@ private:
 
 	double angle[12];
 	double balance_angle[12];
+	double rl_gyro_err;
+	double fb_gyro_err;
+
+	double goal_position;
 
 
 	//alice kinematics
