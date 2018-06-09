@@ -1,11 +1,11 @@
 x_offset: 0.03
-y_offset: 0.02
+y_offset: 0.005
 z_offset: 0.03
 roll_offset: 0
 pitch_offset: 0
 yaw_offset: 0
-hip_pitch_offset: 4.99999985454646
-period_time: 3300
+hip_pitch_offset: 7.000000052497138
+period_time: 4250
 dsp_ratio: 0.3
 step_forward_back_ratio: 0.28
 foot_height: 0.032
