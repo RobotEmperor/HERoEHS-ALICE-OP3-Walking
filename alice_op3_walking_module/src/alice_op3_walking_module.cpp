@@ -581,9 +581,9 @@ void WalkingModule::computeLegAngle()
 			offset += -1 * pelvis_offset_r;
 		else if (i == 7)  // L_HIP_ROLL
 			offset += -1 * pelvis_offset_l;
-		else if (i == 0)
+		else if (i == 2)
 			offset -= 1 * hit_pitch_offset_;
-		else if (i == 6)  // R_HIP_PITCH or L_HIP_PITCH
+		else if (i == 8)  // R_HIP_PITCH or L_HIP_PITCH
 			offset -= -1 * hit_pitch_offset_;
 
 		angle_[i] += offset;

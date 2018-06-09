@@ -158,7 +158,7 @@ WalkingModule::WalkingModule()
 	tf_current_gyro_z = 0;
 	rl_gyro_err = 0.0;
 	fb_gyro_err = 0,0;
-	internal_gain = 0.0;
+	internal_gain = 0.05;
 	goal_position = 0.0;
 
 //zmp
