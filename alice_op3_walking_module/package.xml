@@ -61,9 +61,8 @@
   <depend>robotis_device</depend>
   <depend>robotis_math</depend>
   <depend>op3_kinematics_dynamics</depend>
-  <depend>boost</depend>
-  <depend>eigen</depend>
   <depend>heroehs_math</depend>
+  <depend>alice_balance_control</depend>
   <depend>yaml-cpp</depend>
   
 

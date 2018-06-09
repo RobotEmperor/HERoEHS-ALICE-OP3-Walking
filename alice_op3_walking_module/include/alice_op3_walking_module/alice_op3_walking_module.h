@@ -7,9 +7,6 @@
 
 #ifndef ALICE_HEROEHS_ALICE_OP3_WALKING_ALICE_OP3_WALKING_MODULE_INCLUDE_ALICE_OP3_WALKING_MODULE_ALICE_OP3_WALKING_MODULE_H_
 #define ALICE_HEROEHS_ALICE_OP3_WALKING_ALICE_OP3_WALKING_MODULE_INCLUDE_ALICE_OP3_WALKING_MODULE_ALICE_OP3_WALKING_MODULE_H_
-
-#include "alice_op3_walking_parameter.h"
-
 #include <stdio.h>
 #include <math.h>
 #include <fstream>
@@ -35,8 +32,8 @@
 #include "robotis_framework_common/motion_module.h"
 #include "robotis_math/robotis_math.h"
 #include "robotis_math/robotis_trajectory_calculator.h"
-//#include "op3_kinematics_dynamics/op3_kinematics_dynamics.h"
 #include "heroehs_math/kinematics.h"
+#include "alice_balance_control/zmp_calculation_function.h"
 
 //personal message
 #include "alice_msgs/ForceTorque.h"
@@ -102,27 +99,38 @@ private:
 	void queueThread();
 
 	/* ROS Topic Callback Functions */
+
+	// publisher
+	ros::Publisher l_leg_point_xyz_pub;
+	ros::Publisher r_leg_point_xyz_pub;
+	ros::Publisher zmp_fz_pub;
+
+	geometry_msgs::Vector3 l_leg_point_xyz_msg_;
+	geometry_msgs::Vector3 r_leg_point_xyz_msg_;
+	std_msgs::Float64MultiArray zmp_fz_msg_;
+
+
+	//subscriber
+	ros::Subscriber get_imu_data_sub_;
+	ros::Subscriber get_ft_data_sub_;
+
 	void walkingCommandCallback(const std_msgs::String::ConstPtr &msg);
 	void walkingParameterCallback(const op3_walking_module_msgs::WalkingParam::ConstPtr &msg);
 	bool getWalkigParameterCallback(op3_walking_module_msgs::GetWalkingParam::Request &req,
 			op3_walking_module_msgs::GetWalkingParam::Response &res);
-
-
-	ros::Subscriber get_imu_data_sub_;
-	ros::Subscriber get_ft_data_sub_;
-
-
 	void imuDataMsgCallback(const sensor_msgs::Imu::ConstPtr& msg);
 	void ftDataMsgCallback(const alice_msgs::ForceTorque::ConstPtr& msg);
 
 	void gyroRotationTransformation(double gyro_z, double gyro_y, double gyro_x);
 	double currentGyroX,currentGyroY,currentGyroZ;
 	double tf_current_gyro_x, tf_current_gyro_y, tf_current_gyro_z;
+	double currentFX_l,currentFY_l,currentFZ_l,currentTX_l,currentTY_l,currentTZ_l;
+	double currentFX_r,currentFY_r,currentFZ_r,currentTX_r,currentTY_r,currentTZ_r;
+
 
 	/* ROS Service Callback Functions */
 	void processPhase(const double &time_unit);
-	bool computeLegAngle();
-	void computeArmAngle(double *arm_angle);
+	void computeLegAngle();
 	void sensoryFeedback(double rlGyroErr,double fbGyroErr);
 
 	void publishStatusMsg(unsigned int type, std::string msg);
@@ -140,7 +148,6 @@ private:
 	int control_cycle_msec_;
 	std::string param_path_;
 	boost::thread queue_thread_;
-	boost::mutex publish_mutex_;
 
 	/* ROS Topic Publish Functions */
 	ros::Publisher robot_pose_pub_;
@@ -149,9 +156,8 @@ private:
 	Eigen::MatrixXd calc_joint_tra_;
 
 	Eigen::MatrixXd target_position_;
-	Eigen::MatrixXd goal_position_;
 	Eigen::MatrixXd init_position_;
-	Eigen::MatrixXi joint_axis_direction_;
+
 	std::map<std::string, int> joint_table_;
 	std::map<int, std::string> joint_id_to_name;
 	int walking_state_;
@@ -221,10 +227,11 @@ private:
 	double body_swing_y;
 	double body_swing_z;
 
-	double angle[12];
-	double balance_angle[12];
+	double angle_[12];
+	double balance_angle_[12];
 	double rl_gyro_err;
 	double fb_gyro_err;
+	double internal_gain;
 
 	double goal_position;
 
@@ -233,6 +240,9 @@ private:
 
 	heroehs_math::Kinematics *l_kinematics_;
 	heroehs_math::Kinematics *r_kinematics_;
+
+	// zmp cal
+	alice::ZmpCalculationFunc *zmp_cal;
 };
 }
 

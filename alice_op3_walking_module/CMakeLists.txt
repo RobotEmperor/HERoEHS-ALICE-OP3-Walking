@@ -20,10 +20,10 @@ find_package(catkin REQUIRED COMPONENTS
   robotis_device
   robotis_math
   heroehs_math
+  alice_balance_control
 )
 
-find_package(Boost REQUIRED COMPONENTS thread)
-find_package(Eigen3 REQUIRED)
+find_package(Eigen REQUIRED)
 
 ## Resolve system dependency on yaml-cpp, which apparently does not
 ## provide a CMake find_package() module.
@@ -62,7 +62,6 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS roscpp roslib std_msgs sensor_msgs robotis_controller_msgs op3_walking_module_msgs cmake_modules eigen_conversions robotis_framework_common robotis_device robotis_math heroehs_math
-  DEPENDS Boost EIGEN3
 )
 
 ################################################################################
@@ -76,7 +75,7 @@ include_directories(
   ${YAML_CPP_INCLUDE_DIRS}
 )
 
-add_library(${PROJECT_NAME} src/alice_op3_walking_module.cpp)
+add_library(${PROJECT_NAME} src/alice_op3_walking_module.cpp src/ros_communication.cpp)
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${Eigen3_LIBRARIES} ${YAML_CPP_LIBRARIES})
 
