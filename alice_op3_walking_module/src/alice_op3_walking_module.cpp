@@ -11,6 +11,11 @@ using namespace  alice_walking;
 
 void WalkingModule::initialize(const int control_cycle_msec, robotis_framework::Robot *robot)
 {
+	target_position_.resize(1,12);
+	target_position_.fill(0);
+	init_position_.resize(1,12);
+	init_position_.fill(0);
+
 	queue_thread_ = boost::thread(boost::bind(&WalkingModule::queueThread, this));
 	control_cycle_msec_ = control_cycle_msec;
 
