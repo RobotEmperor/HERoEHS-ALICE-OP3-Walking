@@ -223,6 +223,7 @@ void WalkingModule::publishStatusMsg(unsigned int type, std::string msg)
 	status_msg.module_name = "Walking";
 	status_msg.status_msg = msg;
 
+
 	status_msg_pub_.publish(status_msg);
 }
 

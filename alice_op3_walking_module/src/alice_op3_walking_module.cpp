@@ -181,13 +181,13 @@ void WalkingModule::startWalking()
 	ctrl_running_ = true;
 	real_running_ = true;
 
-	publishStatusMsg(robotis_controller_msgs::StatusMsg::STATUS_INFO, "Start walking");
+	publishStatusMsg(robotis_controller_msgs::StatusMsg::STATUS_INFO, "Walking_Started");
 }
 
 void WalkingModule::stop()
 {
 	ctrl_running_ = false;
-	publishStatusMsg(robotis_controller_msgs::StatusMsg::STATUS_INFO, "Stop walking");
+	publishStatusMsg(robotis_controller_msgs::StatusMsg::STATUS_INFO, "Walking_Finished");
 }
 
 bool WalkingModule::isRunning()
@@ -234,9 +234,7 @@ void WalkingModule::process(std::map<std::string, robotis_framework::Dynamixel *
 
 	for (int idx = 0; idx < 12; idx++)
 	{
-		//printf("%d  ::    %f \n", idx, target_position_(0, idx));
 		result_[joint_id_to_name[idx]]->goal_position_ = target_position_(0, idx);
-		//printf("%d  ::    %f \n", idx, result_[joint_id_to_name[idx]]->goal_position_);
 	}
 
 	// time
@@ -592,9 +590,6 @@ void WalkingModule::computeLegAngle()
 			offset -= -1 * hit_pitch_offset_;
 
 		angle_[i] += offset;
-
-
-
 	}
 
 }
